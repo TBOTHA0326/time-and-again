@@ -1,7 +1,6 @@
 import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
-import { s3Storage } from '@payloadcms/storage-s3'
 import path from 'path'
 
 export default buildConfig({
@@ -17,21 +16,8 @@ export default buildConfig({
     outputFile: path.resolve(__dirname, 'payload-types.ts'),
   },
   db: postgresAdapter({
-    url: process.env.DATABASE_URL || 'postgresql://user:password@localhost:5432/time-and-again',
+    pool: {
+      connectionString: process.env.DATABASE_URL || 'postgresql://user:password@localhost:5432/time-and-again',
+    },
   }),
-  plugins: [
-    s3Storage({
-      collections: {
-        // Will be configured in future tasks
-      },
-      bucket: process.env.S3_BUCKET || 'time-and-again',
-      config: {
-        credentials: {
-          accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
-        },
-        region: process.env.AWS_REGION || 'us-east-1',
-      },
-    }),
-  ],
 })
