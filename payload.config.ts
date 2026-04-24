@@ -1,6 +1,7 @@
 import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { s3Storage } from '@payloadcms/storage-s3'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { Media } from './src/payload/collections/Media'
@@ -9,6 +10,9 @@ import { Users } from './src/payload/collections/Users'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
+const SUPABASE_STORAGE_URL = process.env.SUPABASE_STORAGE_URL || ''
+const SUPABASE_STORAGE_BUCKET = process.env.SUPABASE_STORAGE_BUCKET || 'pieces'
 
 export default buildConfig({
   admin: {
@@ -29,4 +33,25 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL || 'postgresql://user:password@localhost:5432/time-and-again',
     },
   }),
+  plugins: [
+    s3Storage({
+      collections: {
+        media: {
+          disableLocalStorage: true,
+          generateFileURL: ({ filename }) =>
+            `${SUPABASE_STORAGE_URL}/object/public/${SUPABASE_STORAGE_BUCKET}/${filename}`,
+        },
+      },
+      bucket: SUPABASE_STORAGE_BUCKET,
+      config: {
+        credentials: {
+          accessKeyId: process.env.SUPABASE_ACCESS_KEY_ID || '',
+          secretAccessKey: process.env.SUPABASE_SECRET_ACCESS_KEY || '',
+        },
+        region: 'us-east-1',
+        endpoint: process.env.SUPABASE_STORAGE_ENDPOINT || '',
+        forcePathStyle: true,
+      },
+    }),
+  ],
 })

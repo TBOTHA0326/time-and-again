@@ -12,7 +12,7 @@ export const Media: CollectionConfig = {
     delete: ({ req }) => req.user?.role === 'admin',
   },
   upload: {
-    staticDir: 'media',
+    disableLocalStorage: true,
     imageSizes: [
       {
         name: 'thumbnail',
@@ -34,7 +34,7 @@ export const Media: CollectionConfig = {
       },
     ],
     adminThumbnail: 'thumbnail',
-    mimeTypes: ['image/*'],
+    mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
   },
   fields: [
     {
