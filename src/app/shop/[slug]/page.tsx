@@ -6,34 +6,13 @@ import { ArrowLeft, Package, Ruler, Swatches } from '@phosphor-icons/react/dist/
 import { ProductGallery } from './ProductGallery'
 import { MorePieces } from './MorePieces'
 import { WhatsAppCTA } from '@/components/ui/WhatsAppCTA'
-import type { ShopPiece, PayloadResponse } from '../types'
+import { MOCK_PIECES } from '@/lib/mockPieces'
+import type { ShopPiece } from '../types'
 
-// ─── Data fetching ────────────────────────────────────────────────────────────
+// ─── Data fetching (using mock data) ───────────────────────────────────────────
 
-function getBaseUrl(): string {
-  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
-  return 'http://localhost:3000'
-}
-
-async function getPieceBySlug(slug: string): Promise<ShopPiece | null> {
-  try {
-    const url = new URL('/api/pieces', getBaseUrl())
-    url.searchParams.set('where[slug][equals]', slug)
-    url.searchParams.set('limit', '1')
-    url.searchParams.set('depth', '2')
-
-    const res = await fetch(url.toString(), {
-      next: { revalidate: 60 },
-    })
-
-    if (!res.ok) return null
-
-    const data: PayloadResponse<ShopPiece> = await res.json()
-    return data.docs[0] ?? null
-  } catch {
-    return null
-  }
+function getPieceBySlug(slug: string): ShopPiece | null {
+  return (MOCK_PIECES as ShopPiece[]).find((p) => p.slug === slug) ?? null
 }
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
@@ -44,7 +23,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const piece = await getPieceBySlug(slug)
+  const piece = getPieceBySlug(slug)
   if (!piece || piece.status === 'draft') {
     return { title: 'Piece not found — Time & Again' }
   }
@@ -147,7 +126,7 @@ export default async function ShopDetailPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const piece = await getPieceBySlug(slug)
+  const piece = getPieceBySlug(slug)
 
   // 404 on missing or draft pieces
   if (!piece || piece.status === 'draft') {

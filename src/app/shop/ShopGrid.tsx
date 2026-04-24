@@ -1,26 +1,15 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useState, useCallback } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowUpRight } from '@phosphor-icons/react'
 import { GALLERY_CATEGORIES } from '@/lib/constants'
+import { MOCK_PIECES } from '@/lib/mockPieces'
 import { ShopCard } from './ShopCard'
-import type { ShopPiece, PayloadResponse } from './types'
+import type { ShopPiece } from './types'
 
 type FilterKey = (typeof GALLERY_CATEGORIES)[number]['key']
-
-// Skeleton card for loading state
-function SkeletonCard({ tall }: { tall: boolean }) {
-  return (
-    <div
-      className={[
-        'rounded-[24px] bg-slate-brand/8 animate-pulse ring-1 ring-slate-brand/8',
-        tall ? 'aspect-[3/4]' : 'aspect-[5/4]',
-      ].join(' ')}
-    />
-  )
-}
 
 export function ShopGrid() {
   const searchParams = useSearchParams()
@@ -35,39 +24,7 @@ export function ShopGrid() {
       : 'all'
 
   const [filter, setFilter] = useState<FilterKey>(initialFilter)
-  const [allPieces, setAllPieces] = useState<ShopPiece[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const hasFetched = useRef(false)
-
-  // Fetch all available + sold pieces once; filter client-side
-  const fetchPieces = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError(null)
-
-      const res = await fetch(
-        '/api/pieces?limit=100&sort=-createdAt&where[status][in][0]=available&where[status][in][1]=sold&depth=1',
-        { next: { revalidate: 60 } }
-      )
-
-      if (!res.ok) throw new Error(`Failed to fetch pieces (${res.status})`)
-
-      const data: PayloadResponse<ShopPiece> = await res.json()
-      setAllPieces(data.docs)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!hasFetched.current) {
-      hasFetched.current = true
-      fetchPieces()
-    }
-  }, [fetchPieces])
+  const allPieces: ShopPiece[] = MOCK_PIECES as ShopPiece[]
 
   // Sync filter to URL
   const handleFilterChange = (key: FilterKey) => {
@@ -119,99 +76,70 @@ export function ShopGrid() {
         </div>
       </div>
 
-      {/* Error state */}
-      {error && (
-        <div className="py-20 text-center">
-          <p className="text-charcoal/60 text-base mb-6">{error}</p>
+      {/* Pieces grid */}
+      <motion.div
+        layout
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7"
+      >
+        <AnimatePresence mode="popLayout">
+          {displayPieces.map((piece, i) => (
+            <ShopCard key={piece.id} piece={piece} index={i} />
+          ))}
+        </AnimatePresence>
+      </motion.div>
+
+      {/* Empty state */}
+      {displayPieces.length === 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="py-28 text-center"
+        >
+          <p className="font-display italic text-3xl md:text-4xl text-slate-brand/60 mb-4">
+            Nothing available here yet.
+          </p>
+          <p className="text-charcoal/50 text-sm mb-8 max-w-xs mx-auto leading-relaxed">
+            New pieces arrive after every restoration. Check back soon, or reach out directly.
+          </p>
           <button
             type="button"
-            onClick={fetchPieces}
+            onClick={() => handleFilterChange('all')}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-slate-brand text-cream text-sm font-medium hover:bg-charcoal transition-colors"
           >
-            Try again
+            View all pieces
           </button>
-        </div>
+        </motion.div>
       )}
 
-      {/* Loading skeleton grid */}
-      {loading && !error && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <SkeletonCard key={i} tall={i % 3 !== 1} />
-          ))}
+      {/* Availability summary */}
+      {displayPieces.length > 0 && (
+        <div className="mt-6 mb-10 flex items-center gap-3">
+          <span className="h-px flex-1 bg-slate-brand/10" />
+          <span className="text-[11px] uppercase tracking-[0.22em] text-slate-brand/50">
+            {availablePieces.length} available
+            {soldPieces.length > 0 && ` · ${soldPieces.slice(0, 4).length} recently sold`}
+          </span>
+          <span className="h-px flex-1 bg-slate-brand/10" />
         </div>
-      )}
-
-      {/* Pieces grid */}
-      {!loading && !error && (
-        <>
-          <motion.div
-            layout
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7"
-          >
-            <AnimatePresence mode="popLayout">
-              {displayPieces.map((piece, i) => (
-                <ShopCard key={piece.id} piece={piece} index={i} />
-              ))}
-            </AnimatePresence>
-          </motion.div>
-
-          {/* Empty state */}
-          {displayPieces.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="py-28 text-center"
-            >
-              <p className="font-display italic text-3xl md:text-4xl text-slate-brand/60 mb-4">
-                Nothing available here yet.
-              </p>
-              <p className="text-charcoal/50 text-sm mb-8 max-w-xs mx-auto leading-relaxed">
-                New pieces arrive after every restoration. Check back soon, or reach out directly.
-              </p>
-              <button
-                type="button"
-                onClick={() => handleFilterChange('all')}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-slate-brand text-cream text-sm font-medium hover:bg-charcoal transition-colors"
-              >
-                View all pieces
-              </button>
-            </motion.div>
-          )}
-
-          {/* Availability summary */}
-          {displayPieces.length > 0 && (
-            <div className="mt-6 mb-10 flex items-center gap-3">
-              <span className="h-px flex-1 bg-slate-brand/10" />
-              <span className="text-[11px] uppercase tracking-[0.22em] text-slate-brand/50">
-                {availablePieces.length} available
-                {soldPieces.length > 0 && ` · ${soldPieces.slice(0, 4).length} recently sold`}
-              </span>
-              <span className="h-px flex-1 bg-slate-brand/10" />
-            </div>
-          )}
-        </>
       )}
 
       {/* Bottom CTA */}
-      {!loading && !error && (
-        <div className="mt-16 md:mt-24 text-center">
-          <p className="font-display italic text-3xl md:text-4xl text-slate-brand/80 max-w-xl mx-auto leading-snug">
-            After something that is not here yet?
-          </p>
-          <p className="mt-4 text-charcoal/60 text-sm max-w-sm mx-auto leading-relaxed">
-            Katinka takes on custom commissions. Describe the piece you have in mind and we will talk.
-          </p>
-          <a
-            href="/#contact"
-            className="inline-flex items-center gap-2 mt-8 px-7 py-4 rounded-full bg-slate-brand text-cream text-sm font-medium hover:bg-charcoal transition-colors active:scale-[0.98]"
-          >
-            Start a conversation
-            <ArrowUpRight size={14} weight="bold" />
-          </a>
-        </div>
-      )}
+      <div className="mt-16 md:mt-24 text-center">
+        <p className="font-display italic text-3xl md:text-4xl text-slate-brand/80 max-w-xl mx-auto leading-snug">
+          After something that is not here yet?
+        </p>
+        <p className="mt-4 text-charcoal/60 text-sm max-w-sm mx-auto leading-relaxed">
+          Katinka takes on custom commissions. Describe the piece you have in mind and we will talk.
+        </p>
+        <a
+          href="/#contact"
+          className="inline-flex items-center gap-2 mt-8 px-7 py-4 rounded-full bg-slate-brand text-cream text-sm font-medium hover:bg-charcoal transition-colors active:scale-[0.98]"
+        >
+          Start a conversation
+          <ArrowUpRight size={14} weight="bold" />
+        </a>
+      </div>
     </section>
   )
 }
