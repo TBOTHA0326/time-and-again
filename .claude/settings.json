@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} in %{time_total}s\\\\n\" http://localhost:3001/ --max-time 60)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} in %{time_total}s\\\\n\" http://localhost:3001/ --max-time 180)",
+      "Bash(ipconfig)",
+      "PowerShell(Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.InterfaceAlias -notmatch 'Loopback' -and $_.IPAddress -notmatch '^169\\\\.254' } | Select-Object InterfaceAlias, IPAddress | Format-Table -AutoSize)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Read(//c/Personal/ Projects/Tiaan/time-and-again/**)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(npx payload *)",
+      "Bash(node -e \"import\\('tsx/esm/api'\\).then\\(\\({tsImport}\\) => tsImport\\('./payload.config.ts', import.meta.url\\).then\\(m => console.log\\(Object.keys\\(m\\)\\)\\).catch\\(e => console.error\\(e.message\\)\\)\\)\")",
+      "Bash(node --require tsx/cjs -e \"const m = require\\('./payload.config.ts'\\); console.log\\(Object.keys\\(m\\)\\);\")",
+      "Bash(echo \"TypeScript exit code: $?\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\({k:d[k] for k in ['main','module','exports'] if k in d}, indent=2\\)\\)\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('scripts',{}\\), indent=2\\)\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(mkdir -p \"c:/Personal Projects/Tiaan/time-and-again/.worktrees/shop-cms/src/app/\\(payload\\)/admin/[[...segments]]\")",
+      "Bash(mkdir -p \"c:/Personal Projects/Tiaan/time-and-again/.worktrees/shop-cms/src/app/\\(payload\\)/api/[...slug]\")",
+      "Bash(npm test *)"
+    ],
+    "additionalDirectories": [
+      "C:\\Personal Projects\\Tiaan\\time-and-again\\.worktrees\\shop-cms\\src\\app\\admin\\[[...segments]]",
+      "c:\\Personal Projects\\Tiaan\\time-and-again\\.worktrees\\shop-cms\\src\\app\\shop",
+      "c:\\Personal Projects\\Tiaan\\time-and-again\\.worktrees\\shop-cms\\src\\app\\api"
+    ]
+  }
+}
