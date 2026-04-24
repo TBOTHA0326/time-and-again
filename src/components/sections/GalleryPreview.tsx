@@ -22,7 +22,9 @@ export function GalleryPreview() {
             </h2>
           </div>
           <a
-            href="/gallery"
+            href="https://www.facebook.com/anygiventime/photos"
+            target="_blank"
+            rel="noopener noreferrer"
             className="group inline-flex items-center gap-2 self-start md:self-end text-sm font-medium text-slate-brand"
           >
             View the full gallery
@@ -32,8 +34,8 @@ export function GalleryPreview() {
           </a>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
-          {GALLERY.slice(0, 6).map((piece, i) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+          {GALLERY.slice(0, 5).map((piece, i) => (
             <motion.a
               key={piece.title}
               href="/gallery"
@@ -42,31 +44,32 @@ export function GalleryPreview() {
               viewport={{ once: true, margin: '-80px' }}
               transition={{
                 duration: 0.7,
-                delay: (i % 3) * 0.08,
+                delay: i * 0.06,
                 ease: [0.16, 1, 0.3, 1],
               }}
               className={[
                 'group relative block overflow-hidden rounded-[24px] ring-1 ring-slate-brand/10 bg-slate-brand/5',
                 piece.aspect === 'tall'
-                  ? 'aspect-[3/4]'
-                  : 'aspect-[5/4] sm:aspect-[5/4]',
-                i === 0 ? 'lg:col-span-2 lg:row-span-1 lg:aspect-[16/10]' : '',
+                  ? 'aspect-[3/4] sm:aspect-[4/5]'
+                  : 'aspect-[5/4] sm:aspect-[2/1] lg:col-span-2 lg:aspect-[2/1]',
               ].join(' ')}
             >
               <Image
-                src={piece.before}
-                alt={`${piece.title} — before restoration`}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                className="object-cover saturate-50 transition-transform duration-[1400ms] ease-out group-hover:scale-[1.06]"
-              />
-              <Image
                 src={piece.after}
-                alt={`${piece.title} — ${piece.piece}`}
+                alt={`${piece.title} — restored`}
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-out group-hover:scale-[1.06]"
+                className="object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.06]"
               />
+              {piece.before && (
+                <Image
+                  src={piece.before}
+                  alt={`${piece.title} — before restoration`}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover saturate-50 opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-out group-hover:scale-[1.06]"
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-brand/60 via-slate-brand/5 to-transparent opacity-80 group-hover:opacity-95 transition-opacity" />
 
               <div className="absolute inset-x-0 bottom-0 p-5 md:p-6 flex items-end justify-between gap-4">
@@ -83,9 +86,11 @@ export function GalleryPreview() {
                 </span>
               </div>
 
-              <span className="absolute top-4 left-4 text-[10px] uppercase tracking-[0.25em] text-cream/80 bg-slate-brand/40 backdrop-blur px-2.5 py-1 rounded-full">
-                Before &rarr; After
-              </span>
+              {piece.before && (
+                <span className="absolute top-4 left-4 text-[10px] uppercase tracking-[0.25em] text-cream/80 bg-slate-brand/40 backdrop-blur px-2.5 py-1 rounded-full">
+                  Before &rarr; After
+                </span>
+              )}
             </motion.a>
           ))}
         </div>
