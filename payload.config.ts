@@ -14,6 +14,11 @@ const __dirname = path.dirname(__filename)
 const SUPABASE_STORAGE_URL = process.env.SUPABASE_STORAGE_URL || ''
 const SUPABASE_STORAGE_BUCKET = process.env.SUPABASE_STORAGE_BUCKET || 'pieces'
 
+// NOTE: First admin user
+// On initial deployment, visit /admin and use Payload's built-in "create first user"
+// flow. Set the role field to 'admin' — this user then has full write access.
+// Subsequent users created via the API will default to role: 'user' and cannot
+// write to any collection unless promoted to 'admin' by an existing admin.
 export default buildConfig({
   admin: {
     user: 'users',

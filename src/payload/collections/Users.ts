@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { isAdmin } from '../access/isAdmin'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -7,10 +8,11 @@ export const Users: CollectionConfig = {
     useAsTitle: 'email',
   },
   access: {
+    // Any authenticated user can read the users collection (e.g. to see their own profile)
     read: ({ req }) => Boolean(req.user),
-    create: ({ req }) => req.user?.role === 'admin',
-    update: ({ req }) => Boolean(req.user),
-    delete: ({ req }) => req.user?.role === 'admin',
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   fields: [
     {
