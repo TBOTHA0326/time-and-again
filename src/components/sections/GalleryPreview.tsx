@@ -36,9 +36,8 @@ export function GalleryPreview() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
           {GALLERY.slice(0, 5).map((piece, i) => (
-            <motion.a
+            <motion.div
               key={piece.title}
-              href="/gallery"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-80px' }}
@@ -67,7 +66,7 @@ export function GalleryPreview() {
                   alt={`${piece.title} — before restoration`}
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="object-cover saturate-50 opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-out group-hover:scale-[1.06]"
+                  className="object-cover saturate-50 opacity-0 md:group-hover:opacity-100 transition-opacity duration-700 ease-out md:group-hover:scale-[1.06]"
                 />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-brand/60 via-slate-brand/5 to-transparent opacity-80 group-hover:opacity-95 transition-opacity" />
@@ -91,7 +90,7 @@ export function GalleryPreview() {
                   Before &rarr; After
                 </span>
               )}
-            </motion.a>
+            </motion.div>
           ))}
         </div>
       </div>
