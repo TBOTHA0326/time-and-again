@@ -1,5 +1,3 @@
-import { withPayload } from '@payloadcms/next/withPayload'
-
 // Extract hostname from SUPABASE_URL for next/image remotePatterns.
 // SUPABASE_URL is typically https://<project-ref>.supabase.co
 const supabaseHostname = process.env.SUPABASE_URL
@@ -22,4 +20,4 @@ const nextConfig = {
   },
 }
 
-export default withPayload(nextConfig)
+export default nextConfig
